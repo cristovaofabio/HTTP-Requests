@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 MyTask task = new MyTask();
-                urlApi = "https://www.abibliadigital.com.br/api/books/mt";
+                urlApi = "https://www.abibliadigital.com.br/api/verses/nvi/pv/1/5";
                 task.execute(urlApi);
             }
         });
@@ -81,8 +84,24 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            String name = null;
+            String verse = null;
+            String book = null;
 
-            textResult.setText(result);
+            try {
+                //Recover verse:
+                JSONObject jsonObject = new JSONObject(result);
+                verse = jsonObject.getString("text");
+                //Recover book name:
+                book = jsonObject.getString("book"); //Get new JSON
+                JSONObject jsonObject2 = new JSONObject(book);
+                name = jsonObject2.getString("name");
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            textResult.setText("Verse: "+verse+"\nBook name: "+name);
         }
     }
 }
