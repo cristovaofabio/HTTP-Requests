@@ -8,6 +8,13 @@ public class Photo {
    private String url;
    private String thumbnailUrl;
 
+    public Photo(String albumId, String title, String url, String thumbnailUrl) {
+        this.albumId = albumId;
+        this.title = title;
+        this.url = url;
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
     public String getAlbumId() {
         return albumId;
     }

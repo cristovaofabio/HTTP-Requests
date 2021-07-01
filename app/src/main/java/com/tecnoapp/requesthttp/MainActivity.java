@@ -60,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //recoverRequest();
-                recoverListRequest();
+                //recoverListRequest();
+                savePhoto();
 
                 /*
                 MyTask task = new MyTask();
@@ -68,6 +69,38 @@ public class MainActivity extends AppCompatActivity {
                 task.execute(urlApi); */
             }
         });
+    }
+
+    private void savePhoto(){
+        Photo photo = new Photo("1","My parents","socialmedia.com","blabla");
+
+        DataService dataService = retrofit.create(DataService.class);
+        Call<Photo> call = dataService.savePhotos(photo);
+        //for XML file:
+        //Call<Photo> call = dataService.savePhotos("1","My parents","socialmedia.com","blabla");
+
+        call.enqueue(new Callback<Photo>() {
+            @Override
+            public void onResponse(Call<Photo> call, Response<Photo> response) {
+
+                if (response.isSuccessful()){
+                    Photo photoResponse = response.body();
+                    //Check dates save in SERVER
+                    textResult.setText(
+                            "CODE: "+response.code()+"\n"+
+                            "ID: "+photoResponse.getId()+"\n"+
+                            "TITLE: "+photoResponse.getTitle());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Photo> call, Throwable t) {
+
+            }
+        });
+
+
     }
 
     private void recoverListRequest(){

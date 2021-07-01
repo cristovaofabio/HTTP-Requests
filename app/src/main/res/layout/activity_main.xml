@@ -13,7 +13,7 @@
         android:id="@+id/buttonRecover"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Recover datas" />
+        android:text="Execute action" />
 
     <TextView
         android:id="@+id/textResult"
