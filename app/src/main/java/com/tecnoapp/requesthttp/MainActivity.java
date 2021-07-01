@@ -4,9 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.tecnoapp.requesthttp.API.BibleService;
+import com.tecnoapp.requesthttp.API.DataService;
+import com.tecnoapp.requesthttp.Class.Book;
+import com.tecnoapp.requesthttp.Class.Photo;
+import com.tecnoapp.requesthttp.Class.Verse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,12 +25,22 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button buttonRecover;
     private TextView textResult;
     private String urlApi;
+    private Retrofit retrofit;
+    private List<Photo> listPhotos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,16 +49,78 @@ public class MainActivity extends AppCompatActivity {
 
         buttonRecover = findViewById(R.id.buttonRecover);
         textResult = findViewById(R.id.textResult);
+        retrofit = new Retrofit.Builder()
+                //.baseUrl("https://www.abibliadigital.com.br/api/verses/")
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
         buttonRecover.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //recoverRequest();
+                recoverListRequest();
+
+                /*
                 MyTask task = new MyTask();
                 urlApi = "https://www.abibliadigital.com.br/api/verses/nvi/pv/1/5";
-                task.execute(urlApi);
+                task.execute(urlApi); */
             }
         });
     }
+
+    private void recoverListRequest(){
+        DataService dataService = retrofit.create(DataService.class);
+        Call<List<Photo>> listCall = dataService.recoverPhotos();
+
+        listCall.enqueue(new Callback<List<Photo>>() {
+            @Override
+            public void onResponse(Call<List<Photo>> call, Response<List<Photo>> response) {
+                if (response.isSuccessful()){
+                    listPhotos = response.body();
+
+                    for (int i=0;i<listPhotos.size();i++){
+                        Photo photo = listPhotos.get(i);
+
+                        /*
+                        Show the photos here!
+                         */
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Photo>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void recoverRequest(){
+        BibleService bibleService = retrofit.create(BibleService.class);
+        Call<Verse> call = bibleService.recoverVerse("nvi","pv",1,5);
+
+        call.enqueue(new Callback<Verse>() {
+            @Override
+            public void onResponse(Call<Verse> call, Response<Verse> response) {
+                if (response.isSuccessful()){
+                    Verse verse = response.body();
+                    Book book = verse.getBook();
+                    textResult.setText(verse.getText()+"\n"
+                            +book.getName()+" "
+                            +verse.getChapter()+":"
+                            +verse.getNumber());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Verse> call, Throwable t) {
+
+            }
+        });
+    }
+
     class MyTask extends AsyncTask<String,Void,String>{
 
         @Override
