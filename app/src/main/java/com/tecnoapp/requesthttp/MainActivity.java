@@ -61,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
                 //recoverRequest();
                 //recoverListRequest();
-                savePhoto();
+                //savePhoto();
+                //updatePhoto();
+                deletePhoto();
 
                 /*
                 MyTask task = new MyTask();
@@ -71,8 +73,65 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void deletePhoto(){
+        DataService dataService = retrofit.create(DataService.class);
+        Call<Void> call = dataService.deletePhoto(2);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()){
+                    textResult.setText("STATUS: "+response.code());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+
+            }
+        });
+    }
+
+
+    private void updatePhoto(){
+        DataService dataService = retrofit.create(DataService.class);
+        Photo photo = new Photo(
+                "1",
+                null,
+                "socialmedia.com",
+                "blabla");
+
+        //Call<Photo> call = dataService.updatePhoto(2,photo);
+        Call<Photo> call = dataService.updatePhotoPatch(2,photo);
+
+        call.enqueue(new Callback<Photo>() {
+            @Override
+            public void onResponse(Call<Photo> call, Response<Photo> response) {
+                if (response.isSuccessful()){
+                    Photo photoResponse = response.body();
+                    //Check if dates are update in SERVER
+                    textResult.setText(
+                            "CODE: "+response.code()+"\n"+
+                            "ID: "+photoResponse.getId()+"\n"+
+                            "TITLE: "+photoResponse.getTitle()+"\n"+
+                            "URL: "+photoResponse.getUrl());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Photo> call, Throwable t) {
+
+            }
+        });
+    }
+
+
     private void savePhoto(){
-        Photo photo = new Photo("1","My parents","socialmedia.com","blabla");
+        Photo photo = new Photo(
+                "1",
+                "My parents",
+                "socialmedia.com",
+                "blabla");
 
         DataService dataService = retrofit.create(DataService.class);
         Call<Photo> call = dataService.savePhotos(photo);
@@ -103,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     private void recoverListRequest(){
         DataService dataService = retrofit.create(DataService.class);
         Call<List<Photo>> listCall = dataService.recoverPhotos();
@@ -115,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
 
                     for (int i=0;i<listPhotos.size();i++){
                         Photo photo = listPhotos.get(i);
-
                         /*
                         Show the photos here!
                          */
@@ -129,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void recoverRequest(){
         BibleService bibleService = retrofit.create(BibleService.class);
@@ -153,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     class MyTask extends AsyncTask<String,Void,String>{
 
